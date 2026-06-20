@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    # reWriteBatchedInserts=true: pgjdbc gộp batch thành 1 câu multi-row INSERT
+    url: jdbc:postgresql://localhost:5432/shop?reWriteBatchedInserts=true
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 10
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # Flyway tự chạy trước khi JPA khởi tạo. Mỗi file V*.sql chạy đúng 1 lần,
+    # ghi vào bảng flyway_schema_history. Sửa file cũ -> lỗi checksum
+
+  jpa:
+    hibernate:
+      ddl-auto: validate        # schema do Flyway tạo; không cho Hibernate tự đổi schema
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true
+    show-sql: false             # bật khi học; để false lúc seed
+  application:
+    name: SpringJpaDatabaseDeepLearn
+  devtools:
+    remote:
+      restart:
+        enabled: true
+
+# Cấu hình seeder (DataSeeder.java)
+app:
+  seed:
+    enabled: true               # đặt false nếu không muốn seed
+    scale: 1.0                  # dev nhanh: 0.01 (~vài nghìn dòng). Full: 1.0
+    batch-size: 2000
+
+logging:
+  level:
+    org.flywaydb: INFO
+    com.example.dblearning.seeder: INFO
