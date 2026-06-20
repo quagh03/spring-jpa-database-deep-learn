@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: db-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shop
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "track_io_timing=on"     # cần cho EXPLAIN (ANALYZE, BUFFERS)
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "max_wal_size=2GB"       # seed bulk đỡ checkpoint liên tục
+      # work_mem / random_page_cost / effective_cache_size để mặc định:
+      # đó là "đòn bẩy bài học" — chỉnh trong psql rồi chạy lại EXPLAIN để thấy planner đổi.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d shop"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  pgdata:
